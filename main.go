@@ -2,7 +2,16 @@ package main
 
 import (
 	"fmt"
+	"learning-go/validation"
 )
+
+var x = "test1"
+var y string = "test2"
+
+type Person struct { // 创建结构体类型
+	Name string
+	Age  int
+}
 
 //TIP <p>To run your code, right-click the code and select <b>Run</b>.</p> <p>Alternatively, click
 // the <icon src="AllIcons.Actions.Execute"/> icon in the gutter and select the <b>Run</b> menu item from here.</p>
@@ -18,6 +27,8 @@ func main() {
 		// for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.</p>
 		fmt.Println("i =", 100/i)
 	}
+
+	validation.TestRedisSlotStrategy()
 
 	_, err := fmt.Scanln()
 	if err != nil {
