@@ -2,59 +2,82 @@ package redisx
 
 import (
 	"context"
-	"fmt"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
-var ctx = context.Background()
-var rdb *redis.Client
+var (
+	ctx = context.Background()
+	rdb *redis.Client
+)
 
-func main() {
-	// 1. 创建客户端
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379", // Redis 地址
-		Password: "",               // 密码（无则留空）
-		DB:       0,                // 默认数据库
-	})
-
-	// 2. 写入
-	err := rdb.Set(ctx, "foo", "bar", 0).Err()
-	if err != nil {
-		panic(err)
-	}
-
-	// 3. 读取
-	val, err := rdb.Get(ctx, "foo").Result()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("foo:", val)
-
-	// 4. 不存在的 key
-	val2, err := rdb.Get(ctx, "missing").Result()
-	if err == redis.Nil {
-		fmt.Println("missing does not exist")
-	} else if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("missing:", val2)
-	}
+// Config Redis 连接配置
+type Config struct {
+	Addr         string
+	Password     string
+	DB           int
+	PoolSize     int
+	MinIdleConns int
 }
 
-func init() {
+// Init 初始化 Redis 客户端
+func Init(config Config) error {
 	rdb = redis.NewClient(&redis.Options{
-		Addr:         "localhost:6379", // Redis 地址
-		Password:     "",               // 密码（无则留空）
-		DB:           0,                // 默认数据库
-		PoolSize:     20,               // 连接池大小
-		MinIdleConns: 5,                // 保持的最小空闲连接数
+		Addr:         config.Addr,
+		Password:     config.Password,
+		DB:           config.DB,
+		PoolSize:     config.PoolSize,
+		MinIdleConns: config.MinIdleConns,
 	})
+
+	return rdb.Ping(ctx).Err()
 }
 
-func Set(key string, value string) {
-	err := rdb.Set(ctx, "foo", "bar", 0).Err()
-	if err != nil {
-		panic(err)
+// Set 设置键值对
+func Set(key string, value interface{}, expiration time.Duration) error {
+	return rdb.Set(ctx, key, value, expiration).Err()
+}
+
+// Get 获取键值
+func Get(key string) (string, error) {
+	return rdb.Get(ctx, key).Result()
+}
+
+// Del 删除键
+func Del(keys ...string) error {
+	return rdb.Del(ctx, keys...).Err()
+}
+
+// Exists 检查键是否存在
+func Exists(keys ...string) (int64, error) {
+	return rdb.Exists(ctx, keys...).Result()
+}
+
+// Expire 设置过期时间
+func Expire(key string, expiration time.Duration) error {
+	return rdb.Expire(ctx, key, expiration).Err()
+}
+
+// TTL 获取剩余过期时间
+func TTL(key string) (time.Duration, error) {
+	return rdb.TTL(ctx, key).Result()
+}
+
+// Incr 自增
+func Incr(key string) (int64, error) {
+	return rdb.Incr(ctx, key).Result()
+}
+
+// Decr 自减
+func Decr(key string) (int64, error) {
+	return rdb.Decr(ctx, key).Result()
+}
+
+// Close 关闭连接
+func Close() error {
+	if rdb != nil {
+		return rdb.Close()
 	}
+	return nil
 }
