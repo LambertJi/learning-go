@@ -28,8 +28,22 @@ func main() {
 		fmt.Println("i =", 100/i)
 	}
 
-	validation.TestRedisSlotStrategy()
+	// 运行基础语法演示
+	fmt.Println("\n是否运行基础语法演示？(y/n): ")
+	var choice string
+	fmt.Scanln(&choice)
+	if choice == "y" || choice == "Y" {
+		Demo()
+	}
 
+	// 运行 Redis 测试
+	fmt.Println("\n是否运行 Redis 测试？(y/n): ")
+	fmt.Scanln(&choice)
+	if choice == "y" || choice == "Y" {
+		validation.TestRedisSlotStrategy()
+	}
+
+	fmt.Println("\n按回车键退出...")
 	_, err := fmt.Scanln()
 	if err != nil {
 		return
