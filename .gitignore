@@ -4,6 +4,7 @@
 # IDE
 .idea/
 .vscode/
+*.code-workspace
 
 # 系统文件
 .DS_Store
